@@ -1,0 +1,22 @@
+name: deepfake_it_tymi_env
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+dependencies:
+  - python=3.10
+  - pytorch=2.4.0
+  - torchvision=0.19.0
+  - torchaudio
+  - pytorch-cuda=12.1
+  - pip
+  - pip:
+      - diffusers[torch]   # For Manifold/Snap-Back
+      - transformers       # NLP backbone for Diffusion
+      - accelerate         # Optimization for low-compute
+      - opencv-python      # Signal branch/ELA
+      - scikit-learn       # Meta-classifier
+      - matplotlib
+      - grad-cam           # Interpretability Proof
+      - lpips              # Perceptual quality monitoring
+      - tqdm               # Progress bars for long training
