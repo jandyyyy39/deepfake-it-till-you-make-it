@@ -353,8 +353,9 @@ def inten_scale(im: np.ndarray) -> np.ndarray:
 
     T = 252
     v = 6
-    out = np.exp(-1 * (im - T) ** 2 / v)
-    out[im < T] = im[im < T] / T
+    im_f = im.astype(np.float32)   # cast before any arithmetic
+    out = np.exp(-1 * (im_f - T) ** 2 / v)
+    out[im < T] = im_f[im < T] / T
 
     return out
 
@@ -375,6 +376,7 @@ def saturation(im: np.ndarray) -> np.ndarray:
     if im.max() < 250:
         return np.ones((h, w, ch))
 
+    im = im.astype(np.int16)
     im_h = im - np.roll(im, (0, 1), (0, 1))
     im_v = im - np.roll(im, (1, 0), (0, 1))
     satur_map = \
