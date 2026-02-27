@@ -1,6 +1,6 @@
 datasets/vision/*
 datasets/genimage/*
-datasets/fingerprint/*
+datasets/prnu_fingerprints/*
 datasets/prnu/*
 
 .vscode/

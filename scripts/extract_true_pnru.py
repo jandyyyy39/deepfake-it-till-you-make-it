@@ -80,7 +80,7 @@ def extract_fingerprints(root: Path, save_visual: bool) -> None:
         imgs = []
         for img_path in image_paths:
             try:
-                imgs.append(np.array(Image.open(img_path).convert("RGB")))
+                imgs.append(np.clip(np.array(Image.open(img_path).convert("RGB")), 0, 255).astype(np.uint8))
             except Exception as e:
                 print(f"    WARNING: Could not load {img_path.name}: {e}")
 
@@ -98,7 +98,11 @@ def extract_fingerprints(root: Path, save_visual: bool) -> None:
 
         try:
             print(f"  [{camera_dir.name}] Extracting true PRNU fingerprint...")
-            fingerprint = prnu.extract_multiple_aligned(imgs, tqdm_str=f"  [{camera_dir.name}]")
+            fingerprint = prnu.extract_multiple_aligned(
+                imgs,
+                processes=1,
+                tqdm_str=f"  [{camera_dir.name}]"
+            )
 
             np.save(npy_path, fingerprint)
             print(f"    Saved: {npy_path.relative_to(root)}")
@@ -108,6 +112,8 @@ def extract_fingerprints(root: Path, save_visual: bool) -> None:
                 print(f"    Saved: {vis_path.relative_to(root)}")
 
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             print(f"  [{camera_dir.name}] ERROR during extraction: {e}")
 
     print("\nDone.")
