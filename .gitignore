@@ -3,6 +3,7 @@ datasets/genimage/*
 datasets/prnu_fingerprints/*
 datasets/prnu/*
 prnu-python
+src/model/clip_model/*
 
 .vscode/
 

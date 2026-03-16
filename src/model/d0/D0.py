@@ -17,6 +17,7 @@ from transformers import CLIPVisionModel, CLIPImageProcessor
 from PIL import Image
 from torchvision import transforms
 
+torch.manual_seed(42)
 
 # --- CLIP preprocessing (must match training params) ---
 CLIP_TRANSFORM = transforms.Compose([
@@ -101,7 +102,7 @@ if __name__ == "__main__":
         print("Usage: python D0.py <image_path>")
         sys.exit(1)
 
-    model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "clip_model")
+    model_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "../clip_model")
     image_path = sys.argv[1]
 
     print("Loading D0 (untrained baseline)...")
