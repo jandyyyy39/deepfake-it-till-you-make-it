@@ -18,10 +18,12 @@ import random
 import numpy as np
 from itertools import combinations
 from pathlib import Path
+import os
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import prnu
+sys.path.append(os.path.join(os.path.dirname(__file__), "prnu-python"))
 
+import prnu
 
 def load_fingerprint(path: Path) -> np.ndarray:
     return np.load(path).astype(np.float32)

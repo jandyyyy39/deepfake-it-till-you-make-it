@@ -20,3 +20,4 @@ dependencies:
       - grad-cam           # Interpretability Proof
       - lpips              # Perceptual quality monitoring
       - tqdm               # Progress bars for long training
+      - ipykernel          # Jupyter support
