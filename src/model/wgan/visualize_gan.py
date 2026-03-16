@@ -10,7 +10,7 @@ from src.model.prnu_generator import PRNUGenerator
 
 MODEL_WEIGHTS = "synthetic_prnu_generator.pth"
 LATENT_DIM = 128
-OUTPUT_DIR = Path("datasets/failed_gan_output")
+OUTPUT_DIR = Path("../datasets/failed_gan_output")
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -41,17 +41,23 @@ def main():
     print(f"Mean value: {fake_prnu_raw.mean():.6f}")
     print(f"Std Dev:    {fake_prnu_raw.std():.6f}")
 
+    # --- NEW: SAVE THE RAW MATH ---
+    npy_save_path = OUTPUT_DIR / "failed_synthetic_prnu.npy"
+    np.save(npy_save_path, fake_prnu_raw)
+    print(f"\nSaved raw math evidence to: {npy_save_path}")
+
+    # --- SAVE THE VISUAL ---
     visual_fp = ((fake_prnu_raw + 1.0) / 2.0) * 255.0
     visual_fp = visual_fp.astype(np.uint8)
     
     if visual_fp.shape[2] == 3:
         visual_fp = cv2.cvtColor(visual_fp, cv2.COLOR_RGB2BGR)
         
-    save_path = OUTPUT_DIR / "failed_synthetic_prnu.png"
-    cv2.imwrite(str(save_path), visual_fp)
+    img_save_path = OUTPUT_DIR / "failed_synthetic_prnu.png"
+    cv2.imwrite(str(img_save_path), visual_fp)
     
-    print(f"\nSaved visual evidence to: {save_path}")
-    print("Send this image and these stats to the team.")
+    print(f"Saved visual evidence to:   {img_save_path}")
+    print("\nSend the PNG, the NPY, and these terminal stats to the team.")
 
 if __name__ == "__main__":
     main()

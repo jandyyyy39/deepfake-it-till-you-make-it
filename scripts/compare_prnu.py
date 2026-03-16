@@ -22,11 +22,12 @@ import argparse
 import sys
 import numpy as np
 from pathlib import Path
+import os
 
 # Allow running from <root>/script/ with local prnu package
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.append(os.path.join(os.path.dirname(__file__), "prnu-python"))
 import prnu
-
 
 def load_fingerprint(path: Path) -> np.ndarray:
     fp = np.load(path)

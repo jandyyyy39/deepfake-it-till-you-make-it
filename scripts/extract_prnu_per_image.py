@@ -13,6 +13,8 @@ Usage:
 
 import argparse
 import numpy as np
+import sys
+sys.path.append("scripts/prnu-python")
 import prnu
 from PIL import Image
 from pathlib import Path
