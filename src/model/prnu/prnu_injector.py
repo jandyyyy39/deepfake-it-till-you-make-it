@@ -58,21 +58,21 @@ def process_batch(image_paths):
             continue
             
         img_cropped = crop_center(img_bgr, 512, 512)
-        img_float = img_cropped.astype(np.float32)
-        
+        img_float = img_cropped.astype(np.float32) / 255.0  # normalize to [0, 1]
+
         # Select a random hardware fingerprint
         selected_prnu_path = random.choice(prnu_files)
         prnu_array = np.load(selected_prnu_path)
-        
+
         # Prepare the PRNU (Crop to match, expand channels)
         prnu_cropped = crop_center(prnu_array, 512, 512)
-        
+
         if prnu_cropped.ndim == 2:
             prnu_cropped = np.stack([prnu_cropped]*3, axis=-1)
-            
-        # The Mathematical Injection (Spoofing)
-        poisoned_float = img_float + prnu_cropped
-        poisoned_img = np.clip(poisoned_float, 0, 255).astype(np.uint8)
+
+        # The Mathematical Injection (Spoofing) — Multiplicative PRNU model: I = (1 + K) * Y
+        poisoned_float = img_float * (1.0 + prnu_cropped)
+        poisoned_img = (np.clip(poisoned_float, 0, 1.0) * 255).astype(np.uint8)
         
         # Output Generation
         base_name = img_path.stem
