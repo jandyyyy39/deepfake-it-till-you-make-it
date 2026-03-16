@@ -138,14 +138,14 @@ def process_images(
 
 if __name__ == "__main__":
     # configure paths
-    project_root: Path = Path.cwd()
+    adinf_dir: Path = Path(__file__).resolve().parent
 
     cfg_device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    cfg_weights = project_root / "scripts" / "discriminator"/ "artifact_detector" / "checkpoints" / "ad_richhf_baseline_model.bin"
-    cfg_input_dir = project_root / "scripts" / "discriminator"/ "artifact_detector" / "asset" / "input"
-    cfg_heatmap_dir = project_root / "scripts" / "discriminator"/ "artifact_detector" / "asset" / "output" / "heatmap"
-    cfg_mask_dir = project_root /  "scripts" / "discriminator"/ "artifact_detector" / "asset" / "output" / "mask"
-    cfg_mask_txt_dir = project_root /  "scripts" / "discriminator"/ "artifact_detector" / "asset" / "output" / "mask_txt"
+    cfg_weights = adinf_dir / "checkpoints" / "ad_richhf_baseline_model.bin"
+    cfg_input_dir = adinf_dir / "asset" / "input"
+    cfg_heatmap_dir = adinf_dir / "asset" / "output" / "heatmap"
+    cfg_mask_dir = adinf_dir / "asset" / "output" / "mask"
+    cfg_mask_txt_dir = adinf_dir / "asset" / "output" / "mask_txt"
 
     process_images(
         input_dir=cfg_input_dir,
