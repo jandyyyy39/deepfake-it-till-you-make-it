@@ -74,7 +74,7 @@ def fixedTransformations(input_path, output_dir):
 
     for name, transform in transforms_dict.items():
         transformed = transform(img)
-        ext = "jpg" if "jpeg" in name else "png"
+        ext = "png"
         save_path = output_dir / f"{name}.{ext}"
         transformed.save(save_path)
         print(f"Saved: {save_path}")
@@ -102,14 +102,37 @@ def fixedTransformationsSingle(input_path, output_dir):
     ])
 
     transformed = transform(img)
-    save_path = output_dir / f"{Path(input_path).stem}_transformed.jpg"
+    save_path = output_dir / f"{Path(input_path).stem}_transformed.png"
     transformed.save(save_path)
     print(f"Saved: {save_path}")
+
+def process_multiple(input_dir, output_dir):
+    input_dir = Path(input_dir)
+    output_dir = Path(output_dir)
+
+    output_dir.mkdir(exist_ok=True)
+
+    valid_ext = {".png", ".jpg", ".jpeg", ".webp"}
+
+    for input_path in input_dir.iterdir():
+        if input_path.suffix.lower() not in valid_ext:
+            continue
+
+        fixedTransformationsSingle(input_path, output_dir)
 
 def main():
     input_path = Path("/Users/andy/Desktop/T4/CV/Group/test_image.jpg")
     output_path = Path("/Users/andy/Desktop/T4/CV/Group/")
+
+    """
+    Takes a single image path and output path for a directory
+    """
     fixedTransformationsSingle(input_path, output_path)
+
+    """
+    Takes an image directory and an output directory - processes multiple images
+    """
+    process_multiple(Path("/Users/andy/Desktop/T4/CV/Group/"), output_path)
 
 if __name__ == "__main__":
     main()
