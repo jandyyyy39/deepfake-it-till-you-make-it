@@ -1,7 +1,6 @@
 import torch
 from diffusers import AutoPipelineForInpainting
 from diffusers.utils import load_image
-from PIL import Image
 from pathlib import Path
 
 from PIL import Image
