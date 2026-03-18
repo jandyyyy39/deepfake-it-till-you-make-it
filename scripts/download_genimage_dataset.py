@@ -15,8 +15,6 @@ NOTES:
     - Bypasses Google Drive's large-file virus scan warnings.
     - Forces correct naming conventions for split-zip concatenation.
 """
-
-import os
 import re
 import json
 import argparse
@@ -40,7 +38,7 @@ def main():
 
     # Load Data
     try:
-        with open('genimage_links.json', 'r') as f:
+        with open('./scripts/genimage_links.json', 'r') as f:
             full_data = json.load(f)
     except FileNotFoundError:
         print("[ERROR] 'genimage_links.json' not found. Please ensure it's in the same folder.")
