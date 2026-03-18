@@ -83,7 +83,8 @@ def extract_fingerprints(root: Path, save_visual: bool) -> None:
         imgs = []
         for img_path in image_paths:
             try:
-                imgs.append(np.clip(np.array(Image.open(img_path).convert("RGB")), 0, 255).astype(np.uint8))
+                # Keep it uint8 to bypass the assertion
+                imgs.append(np.array(Image.open(img_path).convert("RGB"), dtype=np.uint8))
             except Exception as e:
                 print(f"    WARNING: Could not load {img_path.name}: {e}")
 
@@ -91,23 +92,36 @@ def extract_fingerprints(root: Path, save_visual: bool) -> None:
             print(f"  [{camera_dir.name}] Not enough loadable images, skipping.")
             continue
 
-        # Check all images are the same size (required by extract_multiple_aligned)
-        shapes = set(img.shape for img in imgs)
-        if len(shapes) > 1:
-            print(f"  [{camera_dir.name}] WARNING: Images have mixed sizes {shapes}.")
-            print(f"    extract_multiple_aligned() requires identical dimensions.")
-            print(f"    Skipping — consider resizing images to a common resolution first.")
+        # --- THE FORENSIC FILTER ---
+        from collections import Counter
+        shapes = [img.shape for img in imgs]
+        dominant_shape = Counter(shapes).most_common(1)[0][0]
+        
+        # Ruthlessly drop any image that doesn't match the dominant sensor orientation
+        filtered_imgs = [img for img in imgs if img.shape == dominant_shape]
+        
+        dropped_count = len(imgs) - len(filtered_imgs)
+        if dropped_count > 0:
+            print(f"  [{camera_dir.name}] Dropped {dropped_count} misaligned images. Proceeding with {len(filtered_imgs)} pure {dominant_shape} images.")
+            
+        if len(filtered_imgs) < 2:
+            print(f"  [{camera_dir.name}] Not enough aligned images left, skipping.")
             continue
+            
+        imgs = filtered_imgs
+        # ---------------------------
 
         try:
             print(f"  [{camera_dir.name}] Extracting true PRNU fingerprint...")
-            fingerprint = prnu.extract_multiple_aligned(
-                imgs,
-                processes=1,
-                tqdm_str=f"  [{camera_dir.name}]"
-            )
+            fingerprint = prnu.extract_multiple_aligned(imgs, processes=1, tqdm_str=f"  [{camera_dir.name}]")
 
+            if fingerprint.ndim == 3:
+                fingerprint = fingerprint.mean(axis=2)
+
+            fingerprint -= fingerprint.mean()
             np.save(npy_path, fingerprint)
+            print(f"  [{camera_dir.name}] Post-extraction: mean={fingerprint.mean():.2e}, std={fingerprint.std():.4f}, min={fingerprint.min():.4f}, max={fingerprint.max():.4f}")
+            print(f"  [{camera_dir.name}] Fingerprint shape: {fingerprint.shape}")
             print(f"    Saved: {npy_path.relative_to(root)}")
 
             if save_visual:

@@ -15,12 +15,36 @@ CLIP_MODEL_ID = "openai/clip-vit-large-patch14"
 
 # Artifact types → inpainting prompt mappings
 ARTIFACT_MAP = {
-    "blurry and out of focus texture":     "sharp, highly detailed texture with clear focus",
+    "blurry and out of focus texture":      "sharp, highly detailed texture with clear focus",
     "unnatural smooth skin texture":        "natural skin with realistic pores and subtle texture variation",
     "inconsistent lighting and shadows":    "consistent natural lighting with accurate shadows",
     "distorted or warped geometry":         "correct geometry with natural proportions and straight edges",
     "noisy or grainy texture":              "clean, smooth surface with natural detail and no noise",
     "oversmoothed background":              "realistic background with natural depth, texture and detail",
+    "mangled hands and extra fingers":       "anatomically correct hands with exactly five distinct, well-proportioned fingers",
+    "asymmetrical or mismatched eyes":       "symmetrical, anatomically correct facial features with perfectly aligned eyes, matching pupils",
+    "gibberish text and alien runes":        "clear, legible, correctly spelled english text with perfect typography and straight alignment",
+    "melted or fused object boundaries":     "distinct, sharp edges separating objects with natural depth of field and clear separation",
+    "checkerboard grid artifacts":           "smooth, continuous texture with no repeating grid, pure spatial consistency",
+    "floating or disconnected elements":     "physically grounded objects with natural structural connections, proper gravity and weight",
+    "plastic or waxy surface sheen":         "physically accurate surface material with natural light absorption and organic roughness",
+    "color bleeding and chromatic shifting": "clean color separation with accurate, natural color boundaries and zero chromatic aberration",
+    "repetitive cloned background patterns": "diverse, organic background with non-repeating, natural variations",
+    "structurally impossible architecture":  "structurally sound building with coherent perspective, straight architectural lines, and logical physics",
+    "hallucinated phantom limbs":            "clean negative space, natural body proportions with exact human anatomical constraints",
+    "mutated or duplicate facial features":  "single mathematically perfect face with exactly two eyes, one nose, and one mouth",
+    "blending background into foreground":   "sharp, distinct depth of field strictly separating the solid foreground subject from the background",
+    "impossible reflections or shadows":     "accurate physical reflections and logically cast shadows matching a single primary light source",
+    "deep dream hallucinatory fractal noise": "photorealistic, natural color palette with zero psychedelic, repeating, or fractal patterns",
+    "AI watermark or signature artifacts":   "clean, continuous background texture extending to the edges with absolutely no text or watermarks",
+    "asymmetrical or impossible clothing":   "logically constructed garments with natural, gravity-based fabric draping and symmetrical seams",
+    "mismatched biological animal features": "anatomically correct animal with biologically consistent species traits, proper skeletal structure, and uniform fur",
+    "teeth blending into lips or gums":      "distinct, individual human teeth with clear separation from natural gums and lips",
+    "pupils bleeding into the iris":         "sharp, perfectly round pupils centered inside distinct, natural irises with realistic specular catchlights",
+    "spaghetti-like chaotic hair strands":   "natural hair flow with logical strand behavior, clear directional styling, and organic volume",
+    "jewelry merging into skin":             "solid, metallic jewelry sitting physically on top of the skin with clear contact shadows",
+    "background objects floating in mid-air": "physically grounded objects resting firmly on surfaces with correct spatial perspective",
+    "recursive or infinite object generation": "a single, clearly defined object with definitive boundaries and no recursive nesting",
 }
 
 ARTIFACT_DESCRIPTIONS = list(ARTIFACT_MAP.keys())

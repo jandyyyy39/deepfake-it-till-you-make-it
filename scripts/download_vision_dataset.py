@@ -109,7 +109,7 @@ def main():
         print(f"  Found {len(image_files)} images")
         
         # Download each image
-        for i in range(10):
+        for i in range(50):
             image_file = image_files[i]
             image_url = urljoin(flat_url, image_file)
             save_path = os.path.join(DOWNLOAD_DIR, camera_name, image_file)

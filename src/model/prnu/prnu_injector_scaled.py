@@ -6,8 +6,9 @@ import shutil
 from pathlib import Path
 import argparse
 
-PRNU_DIR = Path("../../datasets/prnu_fingerprints")
-OUTPUT_DIR = Path("../../datasets/injected_batch")
+BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
+PRNU_DIR = BASE_DIR / "datasets" / "prnu_fingerprints"
+OUTPUT_DIR = BASE_DIR / "datasets" / "prnu_injected"
 
 def crop_center(img_array, cropx=512, cropy=512):
     """Strictly crops the center of an array to the exact dimensions."""
@@ -72,6 +73,9 @@ def process_batch(image_paths):
 
         # The Mathematical Injection (Spoofing) — Multiplicative PRNU model: I = (1 + K) * Y
         poisoned_float = img_float * (1.0 + prnu_cropped)
+        alpha = 3  # tunable strength
+        prnu_normalised = prnu_cropped / (np.std(prnu_cropped) + 1e-8)
+        poisoned_float = img_float + (alpha * prnu_normalised) / 255.0
         poisoned_img = (np.clip(poisoned_float, 0, 1.0) * 255).astype(np.uint8)
         
         # Output Generation
