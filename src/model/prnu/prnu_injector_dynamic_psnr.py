@@ -9,35 +9,29 @@ from pathlib import Path
 # ── Configuration ─────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent.parent.parent.parent
 PRNU_DIR = BASE_DIR / "datasets" / "prnu_fingerprints"
-OUTPUT_DIR = BASE_DIR / "datasets" / "prnu_injected_dynamic"
+# OUTPUT_DIR = BASE_DIR / "datasets" / "prnu_injected_dynamic"
+OUTPUT_DIR = BASE_DIR / "datasets" / "prnu_injected_train_vaccine"
 
-# The Forensic Sweet Spot. Do not touch this unless D1 completely fails.
+# The Forensic Sweet Spot
 TARGET_PSNR = 45.0 
 
-def crop_center(img_array, cropx=512, cropy=512):
-    """Strictly crops the center of an array to the exact dimensions."""
-    y, x = img_array.shape[:2]
+def extract_matching_prnu(prnu_array, target_h, target_w):
+    """Crops the absolute center of the massive PRNU array to match the image dimensions."""
+    h, w = prnu_array.shape[:2]
     
-    # Pad if the array is smaller than the target crop
-    if y < cropy or x < cropx:
-        if img_array.ndim == 3:
-            padded = np.zeros((max(y, cropy), max(x, cropx), img_array.shape[2]), dtype=img_array.dtype)
-            padded[:y, :x, :] = img_array
-        else:
-            padded = np.zeros((max(y, cropy), max(x, cropx)), dtype=img_array.dtype)
-            padded[:y, :x] = img_array
-        img_array = padded
-        y, x = img_array.shape[:2]
+    # If the image is somehow larger than the sensor (rare), we must abort
+    if target_h > h or target_w > w:
+        raise ValueError(f"Image ({target_h}x{target_w}) is larger than PRNU array ({h}x{w}). Cannot inject.")
         
-    startx = x // 2 - (cropx // 2)
-    starty = y // 2 - (cropy // 2)
+    start_y = h // 2 - (target_h // 2)
+    start_x = w // 2 - (target_w // 2)
     
-    if img_array.ndim == 3:
-        return img_array[starty:starty+cropy, startx:startx+cropx, :]
-    else:
-        return img_array[starty:starty+cropy, startx:startx+cropx]
+    return prnu_array[start_y:start_y+target_h, start_x:start_x+target_w]
 
-def process_batch(image_paths):
+
+def process_batch(image_paths, target_psnr=TARGET_PSNR, limit=None):
+    if OUTPUT_DIR.exists():
+        shutil.rmtree(OUTPUT_DIR)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
     prnu_files = list(PRNU_DIR.rglob("*_fingerprint.npy"))
@@ -49,26 +43,37 @@ def process_batch(image_paths):
     print(f"Targeting strict {TARGET_PSNR} dB PSNR. Starting batch injection...\n")
     
     success_count = 0
+
+    if not limit:
+        limit = len(image_paths)
     
-    for img_path in image_paths:
-        img_path = Path(img_path)
+    for i in range(min(limit, len(image_paths))):
+        img_path = Path(image_paths[i])
+        
+        # 2. Check if the file actually exists before trying to read it
         if not img_path.exists():
             print(f" [Skipping] {img_path.name}: File not found.")
             continue
-            
+
         img_bgr = cv2.imread(str(img_path))
         if img_bgr is None:
             print(f" [Skipping] {img_path.name}: Unreadable image format.")
             continue
             
-        # Image Prep
-        img_cropped = crop_center(img_bgr, 512, 512)
-        img_float = img_cropped.astype(np.float32)
+        # 1. Image Prep (We DO NOT force 512x512 anymore. We respect native resolution.)
+        img_float = img_bgr.astype(np.float32)
+        h, w = img_float.shape[:2]
 
-        # PRNU Selection & Prep
+        # 2. PRNU Selection & Prep
         selected_prnu_path = random.choice(prnu_files)
         prnu_array = np.load(selected_prnu_path)
-        prnu_cropped = crop_center(prnu_array, 512, 512)
+        
+        # 3. Crop the PRNU to seamlessly fit the native image
+        try:
+            prnu_cropped = extract_matching_prnu(prnu_array, h, w)
+        except ValueError as e:
+            print(f" [Skipping] {img_path.name}: {e}")
+            continue
 
         # Broadcasting Fix: Force to (H, W, 1) so it multiplies across BGR channels evenly
         if prnu_cropped.ndim == 2:
@@ -95,11 +100,9 @@ def process_batch(image_paths):
         camera_name = selected_prnu_path.stem.replace("_fingerprint", "")
         
         out_img_name = OUTPUT_DIR / f"{base_name}_spoofed_by_{camera_name}.png"
-        out_npy_name = OUTPUT_DIR / f"{base_name}_spoofed_by_{camera_name}.npy"
         
         # Save strictly as PNG to preserve high-frequency noise
         cv2.imwrite(str(out_img_name), poisoned_img)
-        shutil.copy(selected_prnu_path, out_npy_name)
         
         print(f" [Success] {img_path.name} -> Poisoned with {camera_name}")
         success_count += 1
@@ -109,7 +112,11 @@ def process_batch(image_paths):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Batch inject Dynamic PSNR hardware fingerprints into images.")
+    parser.add_argument("--psnr", type=float, default=TARGET_PSNR, help="Target PSNR value for the injected noise (default: 28.0 dB)")
+    parser.add_argument("--limit", type=int, default=None, help="Optional limit on the number of images to process from the provided list.")
     parser.add_argument("images", nargs="+", help="Paths to the images you want to spoof.")
     args = parser.parse_args()
+    img_dir = Path(args.images[0])
+    images = list(img_dir.glob("*.png"))
     
-    process_batch(args.images)
+    process_batch(images, args.psnr, args.limit)
