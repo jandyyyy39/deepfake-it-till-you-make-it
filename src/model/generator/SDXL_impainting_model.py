@@ -10,8 +10,9 @@ import torchvision.transforms as T
 import numpy as np
 import re
 
+MODEL_LIST = ["diffusers/stable-diffusion-xl-1.0-inpainting-0.1", "stable-diffusion-v1-5/stable-diffusion-inpainting", "kandinsky-community/kandinsky-2-2-decoder-inpaint"]
 pipe = AutoPipelineForInpainting.from_pretrained(
-    "stabilityai/stable-diffusion-xl-base-1.0",
+    MODEL_LIST[0],
     torch_dtype=torch.float16,
     variant="fp16",
 ).to("cuda")
