@@ -9,11 +9,18 @@ diffusers[torch]==0.33.1
 # Transformer Models (NLP / Vision-Language)
 transformers==4.46.3
 
+# Vision Models
+timm
+huggingface-hub
+
 # Training / Hardware Acceleration
 accelerate
 
 # Numerical Computing
 numpy
+
+# Data Manipulation
+pandas
 
 # Image Processing / Computer Vision
 Pillow
@@ -32,3 +39,8 @@ lpips
 # Experiment Utilities
 tqdm
 gdown
+ipykernel
+
+# Download Utilities
+requests
+beautifulsoup4
