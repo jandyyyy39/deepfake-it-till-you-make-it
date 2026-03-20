@@ -4,6 +4,9 @@ datasets/prnu_fingerprints/*
 datasets/prnu/*
 datasets/prnu_injected*
 prnu-python
+*.pth
+*.bin
+*.safetensors
 
 .vscode/
 
