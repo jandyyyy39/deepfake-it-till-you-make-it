@@ -2,7 +2,6 @@
 Community Forensics Detector (CVPR 2025)
 -----------------------------------------
 ViT-Small trained on 4,803 different generators (2.7M images).
-Model weights auto-download from HuggingFace Hub on first run (~88 MB).
 
 94.6% accuracy on GenImage. #1 ranked detector across 291 generators.
 
@@ -10,49 +9,69 @@ Usage:
     python community_forensics_inference.py <image_path>
 """
 
+import io
 import sys
+import tarfile
+from pathlib import Path
 
 import torch
 import torch.nn as nn
 from PIL import Image
 from torchvision import transforms
 
-MODEL_REPO = "OwensLab/commfor-model-384"
+WEIGHTS_TAR = Path(__file__).parent / "weights" / "commfor_weights.tar"
+CKPT_NAME = "pretrained_weights/model_v11_ViT_384_base_ckpt.pt"
 INPUT_SIZE = 384
 RESIZE_SIZE = 440
 
 
-def _build_model_class():
-    """Build the ViTClassifier class with HuggingFace Hub integration."""
+def _build_model():
+    """Build the ViTClassifier and return it (uninitialized weights)."""
     import timm
-    from huggingface_hub import PyTorchModelHubMixin
 
-    class ViTClassifier(nn.Module, PyTorchModelHubMixin):
-        def __init__(self, model_size="small", input_size=384, patch_size=16,
-                     freeze_backbone=False, device="cuda", dtype=torch.float32):
+    class ViTClassifier(nn.Module):
+        def __init__(self):
             super().__init__()
-            model_name = f"vit_{model_size}_patch{patch_size}_{input_size}.augreg_in21k_ft_in1k"
-            self.vit = timm.create_model(model_name, pretrained=False)
-            embed_dim = {"small": 384, "tiny": 192}[model_size]
-            self.vit.head = nn.Linear(embed_dim, 1)
+            self.vit = timm.create_model(
+                "vit_small_patch16_384.augreg_in21k_ft_in1k", pretrained=False
+            )
+            self.vit.head = nn.Linear(384, 1)
 
         def forward(self, x):
             return self.vit(x)
 
-    return ViTClassifier
+    return ViTClassifier()
 
 
-def load_model():
+def load_model(weights_tar=None):
     """
-    Loads the Community Forensics detector from HuggingFace Hub.
+    Loads the Community Forensics detector from local checkpoint.
+
+    Args:
+        weights_tar: Path to commfor_weights.tar. Defaults to weights/commfor_weights.tar.
 
     Returns:
         (model, transform), device
     """
+    if weights_tar is None:
+        weights_tar = WEIGHTS_TAR
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    ViTClassifier = _build_model_class()
-    model = ViTClassifier.from_pretrained(MODEL_REPO)
+    model = _build_model()
+
+    # Extract checkpoint from tar and load state dict
+    with tarfile.open(weights_tar) as tar:
+        f = tar.extractfile(CKPT_NAME)
+        checkpoint = torch.load(io.BytesIO(f.read()), map_location="cpu", weights_only=False)
+
+    state_dict = checkpoint["model"]
+
+    # Strip _orig_mod. prefix added by torch.compile() if present
+    if any(k.startswith("_orig_mod.") for k in state_dict):
+        state_dict = {k.replace("_orig_mod.", ""): v for k, v in state_dict.items()}
+
+    model.load_state_dict(state_dict, strict=True)
     model.to(device).eval()
 
     transform = transforms.Compose([

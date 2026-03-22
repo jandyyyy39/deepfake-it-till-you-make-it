@@ -24,7 +24,7 @@ import torch.nn.functional as F
 from PIL import Image
 from torchvision import transforms
 
-WEIGHTS_PATH = Path(__file__).parent / "weights" / "NPR.pth"
+WEIGHTS_PATH = Path(__file__).parent / "weights" / "npr_pretrained.pth"
 
 
 # --- Custom architecture (truncated ResNet50 with NPR forward) ---
