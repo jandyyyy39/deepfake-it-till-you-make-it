@@ -11,13 +11,21 @@ dependencies:
   - pytorch-cuda=12.1
   - pip
   - pip:
-      - diffusers[torch]   # For Manifold/Snap-Back
-      - transformers       # NLP backbone for Diffusion
-      - accelerate         # Optimization for low-compute
-      - opencv-python      # Signal branch/ELA
-      - scikit-learn       # Meta-classifier
-      - matplotlib
-      - grad-cam           # Interpretability Proof
-      - lpips              # Perceptual quality monitoring
-      - tqdm               # Progress bars for long training
-      - ipykernel          # Jupyter support
+      - diffusers[torch]==0.33.1  # For Manifold/Snap-Back
+      - transformers==4.46.3      # NLP backbone for Diffusion
+      - timm                      # Vision models (CommFor)
+      - huggingface-hub           # Model Hub (CommFor)
+      - accelerate                # Optimization for low-compute
+      - numpy                     # Numerical computing
+      - pandas                    # Data manipulation
+      - Pillow                    # Image processing
+      - opencv-python             # Signal branch/ELA
+      - scikit-learn              # Meta-classifier
+      - matplotlib                # Visualization
+      - grad-cam                  # Interpretability Proof
+      - lpips                     # Perceptual quality monitoring
+      - tqdm                      # Progress bars
+      - gdown                     # Google Drive downloads
+      - ipykernel                 # Jupyter support
+      - requests                  # HTTP requests
+      - beautifulsoup4            # HTML parsing

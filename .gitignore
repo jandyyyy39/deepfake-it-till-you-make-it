@@ -2,7 +2,11 @@ datasets/vision/*
 datasets/genimage/*
 datasets/prnu_fingerprints/*
 datasets/prnu/*
+datasets/prnu_injected*
 prnu-python
+*.pth
+*.bin
+*.safetensors
 
 .vscode/
 
@@ -216,3 +220,6 @@ __marimo__/
 
 datasets
 requirements-me.txt
+data/
+.DS_Store
+weights/
