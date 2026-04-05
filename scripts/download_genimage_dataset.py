@@ -15,6 +15,8 @@ NOTES:
     - Bypasses Google Drive's large-file virus scan warnings.
     - Forces correct naming conventions for split-zip concatenation.
 """
+
+import os
 import re
 import json
 import argparse
