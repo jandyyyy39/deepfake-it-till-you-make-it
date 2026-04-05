@@ -38,7 +38,7 @@ def main():
 
     # Load Data
     try:
-        with open('./scripts/genimage_links.json', 'r') as f:
+        with open('genimage_links.json', 'r') as f:
             full_data = json.load(f)
     except FileNotFoundError:
         print("[ERROR] 'genimage_links.json' not found. Please ensure it's in the same folder.")
